@@ -1,40 +1,94 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: github-codebuild-logs
+Description: >
+  This serverless app creates publicly accessible links to build logs for the given CodeBuild project and posts them as a comment on the relevant
+  GitHub PR. This solves a common problem with using AWS CodeBuild as a CI solution for opensource GitHub projects where people can't access the
+  logs of a failed CI run against their submitted PRs.
 
 Parameters:
+  CodeBuildProjectName:
+    Type: String
+    Description: Name of CodeBuild project this app is posting logs for.
+  ExpirationInDays:
+    Type: Number
+    Description: Number of days before a build's log page expires.
+    MinValue: 1
+    Default: 30
   LogLevel:
     Type: String
     Description: Log level for Lambda function logging, e.g., ERROR, INFO, DEBUG, etc
     Default: INFO
 
 Resources:
-  MyFunction:
+  ProcessBuildEvents:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: src/
-      Handler: myfunction.handler
+      Handler: processbuildlogs.handler
       Runtime: python3.6
       Tracing: Active
       Timeout: 60
+      Policies:
+        - S3CrudPolicy: !Ref BuildLogs
+        - Statement:
+            Effect: Allow
+            Action:
+              - codebuild:BatchGetBuilds
+            Resource: !Sub arn:${AWS::Partition}:codebuild:${AWS::Region}:${AWS::AccountId}:project/${CodeBuildProjectName}
+        - Statement:
+            Effect: Allow
+            Action:
+              - logs:FilterLogEvents
+            Resource: !Sub arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/${CodeBuildProjectName}
       Environment:
         Variables:
           LOG_LEVEL: !Ref LogLevel
-          TABLE_NAME: !Ref MyTable
+          BUILD_LOGS_BUCKET_NAME: !Ref BuildLogs
+          CODEBUILD_PROJECT_NAME: !Ref CodeBuildProjectName
+      Events:
+        BuildStatus:
+          Type: CloudWatchEvent
+          Properties:
+            Pattern:
+              source:
+                - aws.codebuild
+              'detail-type':
+                - CodeBuild Build State Change
+              detail:
+                'build-status':
+                  - SUCCEEDED
+                  - FAILED
 
-  MyTable:
-    Type: AWS::Serverless::SimpleTable
+  BuildLogs:
+    Type: AWS::S3::Bucket
+    Properties:
+      LifecycleConfiguration:
+        Rules:
+        - ExpirationInDays: !Ref ExpirationInDays
+          Status: Enabled
+
+  BuildLogsPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref BuildLogs
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Action:
+              - s3:GetObject
+            Resource: !GetAtt BuildLogs.Arn
+            Principal: '*'
 
 Outputs:
-  MyFunctionName:
-    Description: "Lambda Function Name"
-    Value: !Ref MyFunction
-  MyFunctionArn:
-    Description: "Lambda Function ARN"
-    Value: !GetAtt MyFunction.Arn
-  MyTableName:
-    Description: "Table Name"
-    Value: !Ref MyTable
+  ProcessBuildEventsFunctionName:
+    Description: "ProcessBuildEvents Lambda Function Name"
+    Value: !Ref ProcessBuildEvents
+  ProcessBuildEventsFunctionNameArn:
+    Description: "ProcessBuildEvents Lambda Function ARN"
+    Value: !GetAtt ProcessBuildEvents.Arn
+  BuildLogsBucketName:
+    Description: "Build logs S3 bucket name"
+    Value: !Ref BuildLogs
   MyTableArn:
-    Description: "Table ARN"
-    Value: !GetAtt MyTable.Arn
+    Description: "Build logs S3 bucket ARN"
+    Value: !GetAtt BuildLogs.Arn
