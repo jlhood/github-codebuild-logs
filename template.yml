@@ -29,7 +29,8 @@ Resources:
       Tracing: Active
       Timeout: 60
       Policies:
-        - S3CrudPolicy: !Ref BuildLogs
+        - S3CrudPolicy:
+            BucketName: !Ref BuildLogs
         - Statement:
             Effect: Allow
             Action:
@@ -39,12 +40,13 @@ Resources:
             Effect: Allow
             Action:
               - logs:FilterLogEvents
-            Resource: !Sub arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/${CodeBuildProjectName}
+            Resource: !Sub arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/${CodeBuildProjectName}:log-stream:*
       Environment:
         Variables:
           LOG_LEVEL: !Ref LogLevel
           BUILD_LOGS_BUCKET_NAME: !Ref BuildLogs
           CODEBUILD_PROJECT_NAME: !Ref CodeBuildProjectName
+          EXPIRATION_IN_DAYS: !Ref ExpirationInDays
       Events:
         BuildStatus:
           Type: CloudWatchEvent
@@ -72,11 +74,12 @@ Resources:
     Properties:
       Bucket: !Ref BuildLogs
       PolicyDocument:
+        Version: '2012-10-17'
         Statement:
           - Effect: Allow
             Action:
               - s3:GetObject
-            Resource: !GetAtt BuildLogs.Arn
+            Resource: !Sub ${BuildLogs.Arn}/*
             Principal: '*'
 
 Outputs:
@@ -89,6 +92,3 @@ Outputs:
   BuildLogsBucketName:
     Description: "Build logs S3 bucket name"
     Value: !Ref BuildLogs
-  MyTableArn:
-    Description: "Build logs S3 bucket ARN"
-    Value: !GetAtt BuildLogs.Arn
