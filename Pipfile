@@ -6,6 +6,7 @@ name = "pypi"
 
 [packages]
 boto3 = "*"
+PyGithub = "*"
 aws-xray-sdk = "*"
 
 [dev-packages]
