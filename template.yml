@@ -26,6 +26,19 @@ Parameters:
   CodeBuildProjectName:
     Type: String
     Description: Name of CodeBuild project this app is posting logs for.
+  GitHubOwner:
+    Description: GitHub username owning the repo
+    Type: String
+  GitHubRepo:
+    Description: GitHub repo name
+    Type: String
+  GitHubTokenSSMParameterPrefix:
+    Type: String
+    Description: >
+      This app assumes the GitHub token needed to post PR comments via the GitHub API is stored as a SecureString in SSM Parameter Store. The
+      parameter name is expected to be "/<this prefix>/github_token". If no value is specified, the parameter name defaults to
+      "/<GitHub repo name>/github-codebuild-logs/github_token". See the app README for details.
+    Default: ''
   ExpirationInDays:
     Type: Number
     Description: Number of days before a build's log page expires.
@@ -36,12 +49,16 @@ Parameters:
     Description: Log level for Lambda function logging, e.g., ERROR, INFO, DEBUG, etc
     Default: INFO
 
+Conditions:
+  UseDefaultSSMPrefix:
+    !Equals [!Ref GitHubTokenSSMParameterPrefix, '']
+
 Resources:
   ProcessBuildEvents:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: src/
-      Handler: processbuildlogs.handler
+      Handler: processbuildevents.handler
       Runtime: python3.7
       Tracing: Active
       Timeout: 60
@@ -58,12 +75,28 @@ Resources:
             Action:
               - logs:FilterLogEvents
             Resource: !Sub arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/${CodeBuildProjectName}:log-stream:*
+        - Statement:
+            Effect: Allow
+            Action:
+              - ssm:GetParameters
+            Resource: !Sub
+              - arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${parameterPrefix}/*
+              - parameterPrefix: !If
+                - UseDefaultSSMPrefix
+                - !Sub ${GitHubRepo}/github-codebuild-logs
+                - !Ref GitHubTokenSSMParameterPrefix
       Environment:
         Variables:
           LOG_LEVEL: !Ref LogLevel
           BUILD_LOGS_BUCKET_NAME: !Ref BuildLogs
           CODEBUILD_PROJECT_NAME: !Ref CodeBuildProjectName
           EXPIRATION_IN_DAYS: !Ref ExpirationInDays
+          GITHUB_OWNER: !Ref GitHubOwner
+          GITHUB_REPO: !Ref GitHubRepo
+          GITHUB_TOKEN_SSM_PARAMETER_PREFIX: !If
+            - UseDefaultSSMPrefix
+            - !Sub ${GitHubRepo}/github-codebuild-logs
+            - !Ref GitHubTokenSSMParameterPrefix
       Events:
         BuildStatus:
           Type: CloudWatchEvent
