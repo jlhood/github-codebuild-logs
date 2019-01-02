@@ -1,14 +1,15 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  This serverless app creates publicly accessible links to build logs for the given CodeBuild project and posts them as a comment on the relevant
-  GitHub PR. This solves a common problem with using AWS CodeBuild as a CI solution for opensource GitHub projects where people can't access the
-  logs of a failed CI run against their submitted PRs.
+  This serverless app creates publicly accessible links to PR build logs for a given AWS CodeBuild project and posts them as a comment
+  on the corresponding GitHub PR.
 
 Metadata:
   AWS::ServerlessRepo::Application:
     Name: github-codebuild-logs
-    Description: This serverless app creates publicly accessible links to build logs for the given CodeBuild project and posts them as a comment on the relevant GitHub PR.
+    Description: >
+      This serverless app creates publicly accessible links to PR build logs for a given AWS CodeBuild project and posts them as a comment
+      on the corresponding GitHub PR.
     Author: James Hood
     # SPDX License Id, e.g., MIT, MIT-0, Apache-2.0. See https://spdx.org/licenses for more details
     SpdxLicenseId: MIT
@@ -18,9 +19,9 @@ Metadata:
     Labels: [github, pr, ci, codebuild, logs]
     HomepageUrl: https://github.com/jlhood/github-codebuild-logs
     # Update the semantic version and run sam publish to publish a new version of your app
-    SemanticVersion: 0.0.1
+    SemanticVersion: 1.0.0
     # best practice is to use git tags for each release and link to the version tag as your source code URL
-    SourceCodeUrl: https://github.com/jlhood/github-codebuild-logs/tree/0.0.1
+    SourceCodeUrl: https://github.com/jlhood/github-codebuild-logs/tree/1.0.0
 
 Parameters:
   CodeBuildProjectName:
@@ -104,7 +105,7 @@ Outputs:
   ProcessBuildEventsFunctionName:
     Description: "ProcessBuildEvents Lambda Function Name"
     Value: !Ref ProcessBuildEvents
-  ProcessBuildEventsFunctionNameArn:
+  ProcessBuildEventsFunctionArn:
     Description: "ProcessBuildEvents Lambda Function ARN"
     Value: !GetAtt ProcessBuildEvents.Arn
   BuildLogsBucketName:
