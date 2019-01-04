@@ -1,5 +1,7 @@
 # github-codebuild-logs
 
+![Build Status](https://codebuild.us-east-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoicDlvblNsMkl0Y1hLelczd2EwZVRaVjd2eSs0ejVRWHlJTGtPSng0RDdFOGpsa0Z1YU1nMFNMd3RZbDBBaVZaR1lVMkVRNEFBM2x1NzdsTy9WdFFqeWlrPSIsIml2UGFyYW1ldGVyU3BlYyI6Ik13ZGZtcUVNTWZadnpvaGYiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)
+
 This serverless app solves a common complaint when using AWS CodeBuild as a CI solution: PR contributors don't have access to the build logs if the CI build fails on their PR branch. The app creates publicly accessible links to PR build logs for a given AWS CodeBuild project and posts them as a comment on the corresponding GitHub PR.
 
 Here is an example GitHub PR comment:
