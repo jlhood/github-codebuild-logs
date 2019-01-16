@@ -12,5 +12,5 @@ sys.path.insert(0, my_path + '/../../src/')
 # set expected config environment variables to test constants
 os.environ['BUILD_LOGS_BUCKET_NAME'] = test_constants.BUCKET_NAME
 os.environ['CODEBUILD_PROJECT_NAME'] = test_constants.PROJECT_NAME
-os.environ['EXPIRATION_IN_DAYS'] = test_constants.EXPIRATION_IN_DAYS
+os.environ['EXPIRATION_IN_DAYS'] = str(test_constants.EXPIRATION_IN_DAYS)
 os.environ['AWS_DEFAULT_REGION'] = test_constants.REGION

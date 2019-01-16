@@ -5,5 +5,5 @@ This can be used to define values for environment variables so unit tests can us
 
 BUCKET_NAME = "TestBucket"
 PROJECT_NAME = 'TestProject'
-EXPIRATION_IN_DAYS = "20"
+EXPIRATION_IN_DAYS = 20
 REGION = 'us-east-1'

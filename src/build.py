@@ -10,8 +10,8 @@ LOG = lambdalogging.getLogger(__name__)
 
 CODEBUILD = boto3.client('codebuild')
 CW_LOGS = boto3.client('logs')
-S3 = boto3.resource('s3')
-BUCKET = S3.Bucket(config.BUCKET_NAME)
+S3 = boto3.client('s3')
+BUCKET = boto3.resource('s3').Bucket(config.BUCKET_NAME)
 
 
 class Build:
@@ -56,8 +56,13 @@ class Build:
 
     def get_logs_url(self):
         """Return S3 URL to build logs."""
-        return 'https://s3.{}.amazonaws.com/{}/{}'.format(
-            config.REGION, config.BUCKET_NAME, self._get_logs_key()
+        return S3.generate_presigned_url(
+            ClientMethod='get_object',
+            ExpiresIn=config.EXPIRATION_IN_DAYS * 3600 * 24,
+            Params={
+                'Bucket': config.BUCKET_NAME,
+                'Key': self._get_logs_key()
+            }
         )
 
     def _get_logs_key(self):

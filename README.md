@@ -16,8 +16,8 @@ Here is an example GitHub PR comment:
 1. Assuming AWS CodeBuild is already setup as the CI solution for this repo, the PR triggers a new CI build.
 1. Once the CI build completes (success or failure), a CloudWatch Event triggers the ProcessBuildEvents AWS Lambda function.
 1. If the event is for a PR build, the ProcessBuildEvents function
-    1. copies the build log to a publicly accessible S3 bucket. Note, the build log auto-expires after a configurable number of days (default: 30).
-    1. publishes a comment on the GitHub PR with a link to the logs. Note, the app uses the CodeBuild project's GitHub OAUTH token to post the comment.
+    1. copies the build log to an S3 bucket. Note, the build log auto-expires after a configurable number of days (default: 30).
+    1. publishes a comment on the GitHub PR with a publicly accessible link to the logs. Note, the app uses the CodeBuild project's GitHub OAUTH token to post the comment.
 
 ## Installation Instructions
 
