@@ -2,6 +2,7 @@
 
 import re
 import boto3
+from urllib.parse import quote_plus
 
 import config
 import lambdalogging
@@ -10,7 +11,6 @@ LOG = lambdalogging.getLogger(__name__)
 
 CODEBUILD = boto3.client('codebuild')
 CW_LOGS = boto3.client('logs')
-S3 = boto3.client('s3')
 BUCKET = boto3.resource('s3').Bucket(config.BUCKET_NAME)
 
 
@@ -55,15 +55,8 @@ class Build:
         )
 
     def get_logs_url(self):
-        """Return S3 URL to build logs."""
-        return S3.generate_presigned_url(
-            ClientMethod='get_object',
-            ExpiresIn=config.EXPIRATION_IN_DAYS * 3600 * 24,
-            Params={
-                'Bucket': config.BUCKET_NAME,
-                'Key': self._get_logs_key()
-            }
-        )
+        """Return URL to build logs."""
+        return '{}?key={}'.format(config.BUILD_LOGS_API_ENDPOINT, quote_plus(self._get_logs_key()))
 
     def _get_logs_key(self):
         log_stream = self._get_build_details()['logs']['streamName']

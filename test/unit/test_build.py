@@ -102,21 +102,9 @@ def test_copy_logs(mocker, mock_codebuild, mock_cw_logs, mock_bucket):
 
 
 def test_get_logs_url(mocker, mock_codebuild):
-    mocker.patch.object(build, 'S3')
-    build.S3.generate_presigned_url.return_value = 'url'
     _mock_build_details('pr/123')
     build_obj = build.Build(_mock_build_event())
-
-    assert build_obj.get_logs_url() == 'url'
-
-    build.S3.generate_presigned_url.assert_called_once_with(
-        ClientMethod='get_object',
-        ExpiresIn=test_constants.EXPIRATION_IN_DAYS * 3600 * 24,
-        Params={
-            'Bucket': test_constants.BUCKET_NAME,
-            'Key': LOG_STREAM_NAME + '/build.log'
-        }
-    )
+    assert build_obj.get_logs_url() == test_constants.BUILD_LOGS_API_ENDPOINT + '?key=' + LOG_STREAM_NAME + '%2Fbuild.log'
 
 
 def _mock_build_event():
