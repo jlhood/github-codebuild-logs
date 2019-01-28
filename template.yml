@@ -66,7 +66,7 @@ Resources:
           BUILD_LOGS_BUCKET_NAME: !Ref BuildLogs
           CODEBUILD_PROJECT_NAME: !Ref CodeBuildProjectName
           EXPIRATION_IN_DAYS: !Ref ExpirationInDays
-          BUILD_LOGS_API_ENDPOINT: !Sub "https://${BuildLogsApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/buildlogs"
+          BUILD_LOGS_API_ENDPOINT: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/buildlogs"
       Events:
         BuildStatus:
           Type: CloudWatchEvent
@@ -102,20 +102,8 @@ Resources:
         Api:
           Type: Api
           Properties:
-            RestApiId: !Ref BuildLogsApi
             Path: /buildlogs
             Method: get
-
-  BuildLogsApi:
-    Type: AWS::Serverless::Api
-    Properties:
-      StageName: Prod
-      MethodSettings:
-        # This is a publicly accessible endpoint so don't let someone rack up costs by calling our endpoint over and over again.
-        - ThrottlingRateLimit: 1
-          ThrottlingBurstLimit: 2
-          ResourcePath: '/*'
-          HttpMethod: '*'
 
   BuildLogs:
     Type: AWS::S3::Bucket
