@@ -14,10 +14,11 @@ Here is an example GitHub PR comment:
 
 1. Contributors create or update a PR.
 1. Assuming AWS CodeBuild is already setup as the CI solution for this repo, the PR triggers a new CI build.
-1. Once the CI build completes (success or failure), a CloudWatch Event triggers the ProcessBuildEvents AWS Lambda function.
-1. If the event is for a PR build, the ProcessBuildEvents function
+1. Once the CI build completes (success or failure), a CloudWatch Event triggers an AWS Lambda function.
+1. If the event is for a PR build, the Lambda function
     1. copies the build log to an S3 bucket. Note, the build log auto-expires after a configurable number of days (default: 30).
     1. publishes a comment on the GitHub PR with a publicly accessible link to the logs. Note, the app uses the CodeBuild project's GitHub OAUTH token to post the comment.
+1. The logs link goes to an API Gateway endpoint, which redirects to a pre-signed URL for the build logs in the S3 bucket.
 
 ## Installation Instructions
 
@@ -27,6 +28,23 @@ To attach this app to an existing AWS CodeBuild project in your AWS account,
 1. Provide the CodeBuild project name and any other parameters (see parameter details below) and click "Deploy"
 
 Alternatively, if your CodeBuild project is defined in an AWS SAM template, this app can be embedded as a nested app inside that SAM template. To do this, visit the [app's page on the AWS Lambda Console](https://console.aws.amazon.com/lambda/home#/create/app?applicationId=arn:aws:serverlessrepo:us-east-1:277187709615:applications/github-codebuild-logs). Click the "Copy as SAM Resource" button and paste the copied YAML into your SAM template.
+
+If you are an AWS CDK user, you can use the [aws-serverless.CfnApplication](https://awslabs.github.io/aws-cdk/refs/_aws-cdk_aws-serverless.html#cfnapplication) construct to embed this app in your CDK application. Here is a TypeScript example:
+
+```typescript
+    addGitHubCodebuildLogsSAR(project: codebuild.Project) {
+        const props: serverless.CfnApplicationProps = {
+            location: {
+                applicationId: 'arn:aws:serverlessrepo:us-east-1:277187709615:applications/github-codebuild-logs',
+                semanticVersion: '1.0.3'
+            },
+            parameters: {
+                CodeBuildProjectName: project.projectName
+            }
+        }
+        new serverless.CfnApplication(this, 'GitHubCodeBuildLogsSAR', props)
+    }
+```
 
 ## App Parameters
 
