@@ -32,18 +32,17 @@ Alternatively, if your CodeBuild project is defined in an AWS SAM template, this
 If you are an AWS CDK user, you can use the [aws-serverless.CfnApplication](https://awslabs.github.io/aws-cdk/refs/_aws-cdk_aws-serverless.html#cfnapplication) construct to embed this app in your CDK application. Here is a TypeScript example:
 
 ```typescript
-    addGitHubCodebuildLogsSAR(project: codebuild.Project) {
-        const props: serverless.CfnApplicationProps = {
-            location: {
-                applicationId: 'arn:aws:serverlessrepo:us-east-1:277187709615:applications/github-codebuild-logs',
-                semanticVersion: '1.0.3'
-            },
-            parameters: {
-                CodeBuildProjectName: project.projectName
-            }
-        }
-        new serverless.CfnApplication(this, 'GitHubCodeBuildLogsSAR', props)
-    }
+import serverless = require('@aws-cdk/aws-sam');
+
+new serverless.CfnApplication(this, 'GitHubCodeBuildLogsSAR', {
+  location: {
+    applicationId: 'arn:aws:serverlessrepo:us-east-1:277187709615:applications/github-codebuild-logs',
+    semanticVersion: '1.0.3'
+  },
+  parameters: {
+    CodeBuildProjectName: project.projectName
+  }
+});
 ```
 
 ## App Parameters
