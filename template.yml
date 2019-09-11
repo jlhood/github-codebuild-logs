@@ -14,8 +14,8 @@ Metadata:
     # SPDX License Id, e.g., MIT, MIT-0, Apache-2.0. See https://spdx.org/licenses for more details
     SpdxLicenseId: MIT
     # paths are relative to .aws-sam/build directory
-    LicenseUrl: ../../LICENSE
-    ReadmeUrl: ../../README.md
+    LicenseUrl: LICENSE
+    ReadmeUrl: README.md
     Labels: [github, pr, ci, codebuild, logs]
     HomePageUrl: https://github.com/jlhood/github-codebuild-logs
     # Update the semantic version and run sam publish to publish a new version of your app
