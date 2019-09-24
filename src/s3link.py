@@ -2,13 +2,14 @@
 
 import boto3
 import botocore
+from botocore.client import Config
 
 import config
 import lambdalogging
 
 LOG = lambdalogging.getLogger(__name__)
-S3 = boto3.client('s3')
-BUCKET = boto3.resource('s3').Bucket(config.BUCKET_NAME)
+S3 = boto3.client('s3', config=Config(signature_version='s3v4'))
+BUCKET = boto3.resource('s3', config=Config(signature_version='s3v4')).Bucket(config.BUCKET_NAME)
 
 
 def get_presigned_url(key):
