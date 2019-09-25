@@ -1,4 +1,4 @@
-# github-codebuild-logs
+# github-codebuild-logs foo
 
 ![Build Status](https://codebuild.us-east-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoicDlvblNsMkl0Y1hLelczd2EwZVRaVjd2eSs0ejVRWHlJTGtPSng0RDdFOGpsa0Z1YU1nMFNMd3RZbDBBaVZaR1lVMkVRNEFBM2x1NzdsTy9WdFFqeWlrPSIsIml2UGFyYW1ldGVyU3BlYyI6Ik13ZGZtcUVNTWZadnpvaGYiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)
 
