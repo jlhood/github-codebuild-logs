@@ -2,6 +2,7 @@
 
 import re
 import boto3
+from botocore.client import Config
 from urllib.parse import quote_plus
 
 import config
@@ -11,7 +12,7 @@ LOG = lambdalogging.getLogger(__name__)
 
 CODEBUILD = boto3.client('codebuild')
 CW_LOGS = boto3.client('logs')
-BUCKET = boto3.resource('s3').Bucket(config.BUCKET_NAME)
+BUCKET = boto3.resource('s3', config=Config(signature_version='s3v4')).Bucket(config.BUCKET_NAME)
 
 
 class Build:
