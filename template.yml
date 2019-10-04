@@ -32,10 +32,18 @@ Parameters:
     Description: Number of days before a build's log page expires.
     MinValue: 1
     Default: 30
+  CodeBuildProjectCustomLogGroupName:
+    Type: String
+    Default: ""
+    Description: If the CodeBuild Project has a custom log group name, you can specify it here. If not provided, the app will assume the CodeBuild default log group name format of /aws/codebuild/<project name>.
   LogLevel:
     Type: String
     Description: Log level for Lambda function logging, e.g., ERROR, INFO, DEBUG, etc
     Default: INFO
+
+Conditions:
+  UseDefaultProjectLogGroupName:
+    !Equals [!Ref CodeBuildProjectCustomLogGroupName, ""]
 
 Resources:
   ProcessBuildEvents:
@@ -59,7 +67,12 @@ Resources:
             Effect: Allow
             Action:
               - logs:FilterLogEvents
-            Resource: !Sub arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/${CodeBuildProjectName}:log-stream:*
+            Resource: !Sub
+              - arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:${logGroupName}:log-stream:*
+              - logGroupName: !If
+                - UseDefaultProjectLogGroupName
+                - !Sub /aws/codebuild/${CodeBuildProjectName}
+                - !Ref CodeBuildProjectCustomLogGroupName
       Environment:
         Variables:
           LOG_LEVEL: !Ref LogLevel
