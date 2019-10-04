@@ -35,7 +35,7 @@ Parameters:
   CodeBuildProjectCustomLogGroupName:
     Type: String
     Default: ""
-    Description: If the CodeBuild Project has a custom log group name, you can specify it here. If not filled in, the app will assume the CodeBuild default log group name of /aws/codebuild/<project name>.
+    Description: If the CodeBuild Project has a custom log group name, you can specify it here. If not provided, the app will assume the CodeBuild default log group name format of /aws/codebuild/<project name>.
   LogLevel:
     Type: String
     Description: Log level for Lambda function logging, e.g., ERROR, INFO, DEBUG, etc
