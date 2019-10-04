@@ -40,6 +40,12 @@ def test_get_pr_id_not_pr(mocker, mock_codebuild):
     assert build_obj.get_pr_id() is None
 
 
+def test_get_pr_id_no_source_version(mocker, mock_codebuild):
+    _mock_build_details(None)
+    build_obj = build.Build(_mock_build_event())
+    assert build_obj.get_pr_id() is None
+
+
 def test_get_pr_id_is_pr(mocker, mock_codebuild):
     _mock_build_details('pr/123')
     build_obj = build.Build(_mock_build_event())
@@ -118,10 +124,9 @@ def _mock_build_event():
 
 
 def _mock_build_details(source_version):
-    build.CODEBUILD.batch_get_builds.return_value = {
+    build_details = {
         'builds': [
             {
-                'sourceVersion': source_version,
                 'logs': {
                     'groupName': LOG_GROUP_NAME,
                     'streamName': LOG_STREAM_NAME,
@@ -129,3 +134,7 @@ def _mock_build_details(source_version):
             }
         ]
     }
+    if source_version:
+        build_details['builds'][0]['sourceVersion'] = source_version
+
+    build.CODEBUILD.batch_get_builds.return_value = build_details
