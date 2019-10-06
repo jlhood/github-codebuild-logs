@@ -36,6 +36,11 @@ Parameters:
     Type: String
     Default: ""
     Description: If the CodeBuild Project has a custom log group name, you can specify it here. If not provided, the app will assume the CodeBuild default log group name format of /aws/codebuild/<project name>.
+  GitHubOAuthToken:
+    Type: String
+    Default: ""
+    Description: OAuth token used for writing comments to GitHub PRs. If not provided, the app will attempt to pull an OAuth token from the CodeBuild project.
+    NoEcho: true
   LogLevel:
     Type: String
     Description: Log level for Lambda function logging, e.g., ERROR, INFO, DEBUG, etc
@@ -43,7 +48,9 @@ Parameters:
 
 Conditions:
   UseDefaultProjectLogGroupName:
-    !Equals [!Ref CodeBuildProjectCustomLogGroupName, ""]
+    !Equals [!Ref CodeBuildProjectCustomLogGroupName, '']
+  GitHubOAuthTokenProvided:
+    !Not [!Equals [!Ref GitHubOAuthToken, '']]
 
 Resources:
   ProcessBuildEvents:
@@ -73,6 +80,11 @@ Resources:
                 - UseDefaultProjectLogGroupName
                 - !Sub /aws/codebuild/${CodeBuildProjectName}
                 - !Ref CodeBuildProjectCustomLogGroupName
+        - !If
+          - GitHubOAuthTokenProvided
+          - AWSSecretsManagerGetSecretValuePolicy:
+              SecretArn: !Ref GitHubOAuthTokenSecret
+          - !Ref AWS::NoValue
       Environment:
         Variables:
           LOG_LEVEL: !Ref LogLevel
@@ -80,6 +92,10 @@ Resources:
           CODEBUILD_PROJECT_NAME: !Ref CodeBuildProjectName
           EXPIRATION_IN_DAYS: !Ref ExpirationInDays
           BUILD_LOGS_API_ENDPOINT: !Sub "https://${BuildLogsApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/buildlogs"
+          GITHUB_OAUTH_TOKEN_SECRET_ARN: !If
+            - GitHubOAuthTokenProvided
+            - !Ref GitHubOAuthTokenSecret
+            - ''
       Events:
         BuildStatus:
           Type: CloudWatchEvent
@@ -93,6 +109,13 @@ Resources:
                 'build-status':
                   - SUCCEEDED
                   - FAILED
+
+  GitHubOAuthTokenSecret:
+    Condition: GitHubOAuthTokenProvided
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub /github-codebuild-logs/${AWS::StackName}/GitHubOAuthToken
+      SecretString: !Ref GitHubOAuthToken
 
   GetBuildLogs:
     Type: AWS::Serverless::Function

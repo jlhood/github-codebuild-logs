@@ -7,4 +7,5 @@ BUCKET_NAME = "TestBucket"
 PROJECT_NAME = 'TestProject'
 EXPIRATION_IN_DAYS = 20
 BUILD_LOGS_API_ENDPOINT = 'https://foo.com/bar'
+GITHUB_OAUTH_TOKEN_SECRET_ARN = ''
 REGION = 'us-east-1'

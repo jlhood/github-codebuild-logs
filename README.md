@@ -50,6 +50,7 @@ new serverless.CfnApplication(this, 'GitHubCodeBuildLogsSAR', {
 1. `CodeBuildProjectName` (required) - Name of CodeBuild project this app is posting logs for.
 1. `ExpirationInDays` (optional) - Number of days before a build's log page expires. Default: 30
 1. `CodeBuildProjectCustomLogGroupName` (optional) - If the CodeBuild Project has a custom log group name, you can specify it here. If not provided, the app will assume the CodeBuild default log group name format of `/aws/codebuild/<project name>`.
+1. `GitHubOAuthToken` (optional) - OAuth token used for writing comments to GitHub PRs. If not provided, the app will attempt to pull an OAuth token from the CodeBuild project. Note, if your CodeBuild project does not have a GitHub OAuth token, e.g., it is being used to build a public GitHub repo, then this parameter will be required for the app to function properly.
 
 1. `LogLevel` (optional) - Log level for Lambda function logging, e.g., ERROR, INFO, DEBUG, etc. Default: INFO
 
@@ -59,6 +60,13 @@ new serverless.CfnApplication(this, 'GitHubCodeBuildLogsSAR', {
 1. `ProcessBuildEventsFunctionArn` - ProcessBuildEvents Lambda function ARN.
 1. `BuildLogsBucketName` - Build logs S3 bucket name.
 1. `BuildLogsBucketArn` - Build logs S3 bucket ARN.
+
+## Security Considerations
+
+The following precautions are taken when the `GitHubOAuthToken` parameter is provided since it's sensitive data:
+
+1. The NoEcho option is used on the parameter so the value will never be shown by CloudFormation.
+1. The app stores the value in [AWS Secrets Manager](https://aws.amazon.com/secrets-manager/).
 
 ## License Summary
 
