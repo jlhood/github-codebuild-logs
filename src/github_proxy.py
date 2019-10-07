@@ -24,6 +24,7 @@ PR_COMMENT_TEMPLATE = """
 """
 
 CODEBUILD = boto3.client('codebuild')
+SECRETS_MANAGER = boto3.client('secretsmanager')
 
 
 class GithubProxy:
@@ -71,11 +72,17 @@ class GithubProxy:
                 'AWS CodeBuild project {} source is not GITHUB. Project source must be of type GITHUB'.format(
                     config.PROJECT_NAME))
 
-        if project_details['source']['auth']['type'] != 'OAUTH':
-            raise RuntimeError('Could not get GitHub auth token from AWS CodeBuild project {}.'.format(
-                config.PROJECT_NAME))
-
-        self._github_token = project_details['source']['auth']['resource']
+        # if user provided an OAuth token to use, fetch it from secrets manager
+        if config.GITHUB_OAUTH_TOKEN_SECRET_ARN:
+            secret_response = SECRETS_MANAGER.get_secret_value(SecretId=config.GITHUB_OAUTH_TOKEN_SECRET_ARN)
+            self._github_token = secret_response['SecretString']
+        # if user did not provide an OAuth token to use, try to get one from the CodeBuild project
+        elif project_details['source'].get('auth', {}).get('type') == 'OAUTH':
+            self._github_token = project_details['source']['auth']['resource']
+        else:
+            raise RuntimeError(
+                'Could not get GitHub OAuth token from AWS CodeBuild project {}. Please use the GitHubOAuthToken app'
+                ' parameter to specify a token to use when writing to GitHub.'.format(config.PROJECT_NAME))
 
         github_location = project_details['source']['location']
         matches = re.search(r'github\.com\/(.+)\/(.+)\.git$', github_location)
