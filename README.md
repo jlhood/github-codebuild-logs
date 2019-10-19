@@ -51,7 +51,8 @@ new serverless.CfnApplication(this, 'GitHubCodeBuildLogsSAR', {
 1. `ExpirationInDays` (optional) - Number of days before a build's log page expires. Default: 30
 1. `CodeBuildProjectCustomLogGroupName` (optional) - If the CodeBuild Project has a custom log group name, you can specify it here. If not provided, the app will assume the CodeBuild default log group name format of `/aws/codebuild/<project name>`.
 1. `GitHubOAuthToken` (optional) - OAuth token used for writing comments to GitHub PRs. If not provided, the app will attempt to pull an OAuth token from the CodeBuild project. Note, if your CodeBuild project does not have a GitHub OAuth token, e.g., it is being used to build a public GitHub repo, then this parameter will be required for the app to function properly.
-
+    * **NOTE:** The access token used requires `public_repo` permissions for public repositories
+        or `repo` for private repositories.
 1. `LogLevel` (optional) - Log level for Lambda function logging, e.g., ERROR, INFO, DEBUG, etc. Default: INFO
 
 ## App Outputs
