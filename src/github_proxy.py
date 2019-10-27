@@ -14,13 +14,16 @@ SAR_APP_URL = ('https://serverlessrepo.aws.amazon.com/applications/arn:aws:serve
                'applications~github-codebuild-logs')
 SAR_HOMEPAGE = 'https://aws.amazon.com/serverless/serverlessrepo/'
 
-PR_COMMENT_TEMPLATE = """
+PR_COMMENT_TEMPLATE = f"""
 ### AWS CodeBuild CI Report
 
-* Result: {}
-* [Build Logs]({}) (available for {} days)
+* CodeBuild project: {{project_name}}
+* Commit ID: {{commit_id}}
+* Result: {{build_status}}
+* [Build Logs]({{logs_url}}) (available for {config.EXPIRATION_IN_DAYS} days)
 
-*Powered by [github-codebuild-logs]({}), available on the [AWS Serverless Application Repository]({})*
+*Powered by [github-codebuild-logs]({SAR_APP_URL}),\
+ available on the [AWS Serverless Application Repository]({SAR_HOMEPAGE})*
 """
 
 CODEBUILD = boto3.client('codebuild')
@@ -37,11 +40,10 @@ class GithubProxy:
     def publish_pr_comment(self, build):
         """Publish PR comment with link to build logs."""
         pr_comment = PR_COMMENT_TEMPLATE.format(
-            build.status,
-            build.get_logs_url(),
-            config.EXPIRATION_IN_DAYS,
-            SAR_APP_URL,
-            SAR_HOMEPAGE
+            project_name=config.PROJECT_NAME,
+            commit_id=build.commit_id,
+            build_status=build.status,
+            logs_url=build.get_logs_url(),
         )
 
         # initialize client before logging to ensure GitHub attributes are populated

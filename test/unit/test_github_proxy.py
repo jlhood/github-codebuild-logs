@@ -11,6 +11,7 @@ CODEBUILD_GITHUB_TOKEN = 'shhh!!'
 SECRETS_MANAGER_GITHUB_TOKEN = "don't tell!!"
 BUILD_STATUS = 'SUCCEEDED'
 PR_ID = 5
+COMMIT_ID = 'da39a3ee5e6b4b0d3255bfef95601890afd80709'
 LOGS_URL = 'https://foo.com'
 
 
@@ -64,6 +65,7 @@ def test_publish_pr_comment(mocker, mock_config, mock_codebuild, mock_secretsman
     build = MagicMock(status=BUILD_STATUS)
     build.get_logs_url.return_value = LOGS_URL
     build.get_pr_id.return_value = PR_ID
+    build.commit_id = COMMIT_ID
 
     proxy = github_proxy.GithubProxy()
     proxy.publish_pr_comment(build)
@@ -81,11 +83,10 @@ def test_publish_pr_comment(mocker, mock_config, mock_codebuild, mock_secretsman
     mock_pr = mock_repo.get_pull.return_value
 
     expected_comment = github_proxy.PR_COMMENT_TEMPLATE.format(
-        BUILD_STATUS,
-        LOGS_URL,
-        test_constants.EXPIRATION_IN_DAYS,
-        github_proxy.SAR_APP_URL,
-        github_proxy.SAR_HOMEPAGE
+        project_name=test_constants.PROJECT_NAME,
+        commit_id=COMMIT_ID,
+        build_status=BUILD_STATUS,
+        logs_url=LOGS_URL,
     )
     mock_pr.create_issue_comment.assert_called_once_with(expected_comment)
 
