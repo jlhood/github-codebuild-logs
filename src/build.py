@@ -32,6 +32,11 @@ class Build:
             return None
         return int(matches.group(1))
 
+    @property
+    def commit_id(self):
+        """Return the commit ID for this build."""
+        return self._get_build_details()["resolvedSourceVersion"]
+
     def is_pr_build(self):
         """Return True if this build is associated with a PR."""
         return self.get_pr_id() is not None
