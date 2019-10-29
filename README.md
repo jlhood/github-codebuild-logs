@@ -37,7 +37,7 @@ import serverless = require('@aws-cdk/aws-sam');
 new serverless.CfnApplication(this, 'GitHubCodeBuildLogsSAR', {
   location: {
     applicationId: 'arn:aws:serverlessrepo:us-east-1:277187709615:applications/github-codebuild-logs',
-    semanticVersion: '1.1.0'
+    semanticVersion: '1.2.0'
   },
   parameters: {
     CodeBuildProjectName: project.projectName
