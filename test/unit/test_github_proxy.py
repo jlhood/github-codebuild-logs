@@ -1,5 +1,7 @@
 import pytest
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, Mock
+
+from github import BadCredentialsException
 
 import github_proxy
 import test_constants
@@ -61,11 +63,27 @@ def mock_github(mocker):
     return github_proxy.Github.return_value
 
 
-def test_publish_pr_comment(mocker, mock_config, mock_codebuild, mock_secretsmanager, mock_github):
+@pytest.fixture
+def mock_renewing_github(mocker):
+    mocker.patch.object(github_proxy, 'Github')
+
+    mock_failure = Mock()
+    mock_failure.get_user.side_effect = BadCredentialsException(status='foo', data='bar')
+
+    github_proxy.Github.side_effect = (mock_failure, Mock())
+    return github_proxy.Github
+
+
+def _mock_build():
     build = MagicMock(status=BUILD_STATUS)
     build.get_logs_url.return_value = LOGS_URL
     build.get_pr_id.return_value = PR_ID
     build.commit_id = COMMIT_ID
+    return build
+
+
+def test_publish_pr_comment(mocker, mock_config, mock_codebuild, mock_secretsmanager, mock_github):
+    build = _mock_build()
 
     proxy = github_proxy.GithubProxy()
     proxy.publish_pr_comment(build)
@@ -89,6 +107,15 @@ def test_publish_pr_comment(mocker, mock_config, mock_codebuild, mock_secretsman
         logs_url=LOGS_URL,
     )
     mock_pr.create_issue_comment.assert_called_once_with(expected_comment)
+
+
+def test_public_pr_comment_renew_credentials(mock_config, mock_codebuild, mock_secretsmanager, mock_renewing_github):
+    build = _mock_build()
+
+    proxy = github_proxy.GithubProxy()
+    proxy.publish_pr_comment(build)
+
+    assert mock_renewing_github.call_count == 2
 
 
 def test_init_github_info_auth_with_secrets_manager_arn(mocker, mock_config, mock_codebuild, mock_secretsmanager):

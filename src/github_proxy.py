@@ -3,7 +3,7 @@
 import re
 
 import boto3
-from github import Github
+from github import Github, GithubException
 
 import config
 import lambdalogging
@@ -33,10 +33,6 @@ SECRETS_MANAGER = boto3.client('secretsmanager')
 class GithubProxy:
     """Encapsulate interactions with Github."""
 
-    def __init__(self):
-        """Initialize proxy."""
-        pass
-
     def publish_pr_comment(self, build):
         """Publish PR comment with link to build logs."""
         pr_comment = PR_COMMENT_TEMPLATE.format(
@@ -46,22 +42,35 @@ class GithubProxy:
             logs_url=build.get_logs_url(),
         )
 
-        # initialize client before logging to ensure GitHub attributes are populated
-        gh_client = self._get_client()
-        LOG.debug('Publishing PR Comment: repo=%s/%s, pr_id=%s, comment=%s',
-                  self._github_owner, self._github_repo, build.get_pr_id(), pr_comment)
+        # initialize client to obtain user info if first run
+        _ = self._github_client
+        attempt = 1
+        while attempt <= 2:
+            try:
+                LOG.debug('Publishing PR Comment: repo=%s/%s, pr_id=%s, comment=%s',
+                          self._github_owner, self._github_repo, build.get_pr_id(), pr_comment)
 
-        repo = gh_client.get_user(self._github_owner).get_repo(self._github_repo)
-        repo.get_pull(build.get_pr_id()).create_issue_comment(pr_comment)
+                repo = self._github_client.get_user(self._github_owner).get_repo(self._github_repo)
+                repo.get_pull(build.get_pr_id()).create_issue_comment(pr_comment)
+            except GithubException:
+                self._refresh_github_client()
+                attempt += 1
+            else:
+                return
 
-    def _get_client(self):
-        if not hasattr(self, '_client'):
-            self._init_client()
-        return self._client
+        raise PermissionError("Unable to authenticate to GitHub with available credentials!")
 
-    def _init_client(self):
+    def _refresh_github_client(self):
         self._init_github_info()
-        self._client = Github(self._github_token)
+        self.__github_client = Github(self._github_token)
+        return self.__github_client
+
+    @property
+    def _github_client(self):
+        try:
+            return self.__github_client
+        except AttributeError:
+            return self._refresh_github_client()
 
     def _init_github_info(self):
         response = CODEBUILD.batch_get_projects(
