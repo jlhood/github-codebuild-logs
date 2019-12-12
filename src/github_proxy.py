@@ -55,7 +55,7 @@ class GithubProxy:
         if config.DELETE_PREVIOUS_COMMENT == 'true':
             comments = repo.get_issue(build.get_pr_id).get_comments()
             for comment in comments:
-                if comment.body.startswith(H3):
+                if H3 in comment.body:
                     LOG.debug('Deleting previous comment: repo=%s/%s, pr_id=%s, comment_id=%s',
                               self._github_owner, self._github_repo, build.get_pr_id(), comment.id)
                     comment.delete()
