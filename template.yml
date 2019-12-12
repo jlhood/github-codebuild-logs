@@ -45,6 +45,13 @@ Parameters:
     Type: String
     Description: Log level for Lambda function logging, e.g., ERROR, INFO, DEBUG, etc
     Default: INFO
+  DeletePreviousComment:
+    Type: String
+    AllowedValues:
+      - "true"
+      - "false"
+    Default: "false"
+    Description: Set to "true" to delete the previous PR comment before posting a new one.
 
 Conditions:
   UseDefaultProjectLogGroupName:
@@ -96,6 +103,7 @@ Resources:
             - GitHubOAuthTokenProvided
             - !Ref GitHubOAuthTokenSecret
             - ''
+          DELETE_PREVIOUS_COMMENT: !Ref DeletePreviousComment
       Events:
         BuildStatus:
           Type: CloudWatchEvent

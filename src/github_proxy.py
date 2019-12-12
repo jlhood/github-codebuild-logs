@@ -10,12 +10,14 @@ import lambdalogging
 
 LOG = lambdalogging.getLogger(__name__)
 
+H3 = '### AWS CodeBuild CI Report'
+
 SAR_APP_URL = ('https://serverlessrepo.aws.amazon.com/applications/arn:aws:serverlessrepo:us-east-1:277187709615:'
                'applications~github-codebuild-logs')
 SAR_HOMEPAGE = 'https://aws.amazon.com/serverless/serverlessrepo/'
 
 PR_COMMENT_TEMPLATE = f"""
-### AWS CodeBuild CI Report
+{H3}
 
 * CodeBuild project: {{project_name}}
 * Commit ID: {{commit_id}}
@@ -48,10 +50,19 @@ class GithubProxy:
 
         # initialize client before logging to ensure GitHub attributes are populated
         gh_client = self._get_client()
+        repo = gh_client.get_user(self._github_owner).get_repo(self._github_repo)
+
+        if config.DELETE_PREVIOUS_COMMENT == 'true':
+            comments = repo.get_issue(build.get_pr_id).get_comments()
+            for comment in comments:
+                if comment.body.startswith(H3):
+                    LOG.debug('Deleting previous comment: repo=%s/%s, pr_id=%s, comment_id=%s',
+                              self._github_owner, self._github_repo, build.get_pr_id(), comment.id)
+                    comment.delete()
+                    break
+
         LOG.debug('Publishing PR Comment: repo=%s/%s, pr_id=%s, comment=%s',
                   self._github_owner, self._github_repo, build.get_pr_id(), pr_comment)
-
-        repo = gh_client.get_user(self._github_owner).get_repo(self._github_repo)
         repo.get_pull(build.get_pr_id()).create_issue_comment(pr_comment)
 
     def _get_client(self):
