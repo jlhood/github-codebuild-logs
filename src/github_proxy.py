@@ -10,14 +10,18 @@ import lambdalogging
 
 LOG = lambdalogging.getLogger(__name__)
 
-H3 = '### AWS CodeBuild CI Report'
-
 SAR_APP_URL = ('https://serverlessrepo.aws.amazon.com/applications/arn:aws:serverlessrepo:us-east-1:277187709615:'
                'applications~github-codebuild-logs')
 SAR_HOMEPAGE = 'https://aws.amazon.com/serverless/serverlessrepo/'
 
+HIDDEN_COMMENT = """
+<!--
+CREATED BY GITHUB-CODBUILD-LOGS
+-->
+"""
+
 PR_COMMENT_TEMPLATE = f"""
-{H3}
+### AWS CodeBuild CI Report
 
 * CodeBuild project: {{project_name}}
 * Commit ID: {{commit_id}}
@@ -26,6 +30,8 @@ PR_COMMENT_TEMPLATE = f"""
 
 *Powered by [github-codebuild-logs]({SAR_APP_URL}),\
  available on the [AWS Serverless Application Repository]({SAR_HOMEPAGE})*
+
+{HIDDEN_COMMENT}
 """
 
 CODEBUILD = boto3.client('codebuild')
@@ -48,22 +54,28 @@ class GithubProxy:
             logs_url=build.get_logs_url(),
         )
 
-        # initialize client before logging to ensure GitHub attributes are populated
-        gh_client = self._get_client()
-        repo = gh_client.get_user(self._github_owner).get_repo(self._github_repo)
-
-        if config.DELETE_PREVIOUS_COMMENT:
-            comments = repo.get_issue(build.get_pr_id).get_comments()
-            for comment in comments:
-                if H3 in comment.body:
-                    LOG.debug('Deleting previous comment: repo=%s/%s, pr_id=%s, comment_id=%s',
-                              self._github_owner, self._github_repo, build.get_pr_id(), comment.id)
-                    comment.delete()
-                    break
-
+        repo = self._get_repo()
         LOG.debug('Publishing PR Comment: repo=%s/%s, pr_id=%s, comment=%s',
                   self._github_owner, self._github_repo, build.get_pr_id(), pr_comment)
         repo.get_pull(build.get_pr_id()).create_issue_comment(pr_comment)
+
+    def delete_previous_comments(self, build):
+        """Delete previous PR comments."""
+        repo = self._get_repo()
+        for comment in repo.get_issue(build.get_pr_id).get_comments():
+            if HIDDEN_COMMENT in comment.body: # Check for hidden comment in body
+                try: # Not critical, catch all exceptions here
+                    LOG.debug('Deleting previous comment: repo=%s/%s, pr_id=%s, comment_id=%s',
+                            self._github_owner, self._github_repo, build.get_pr_id(), comment.id)
+                    comment.delete()
+                except:
+                    pass
+
+    def _get_repo(self):
+        if not hasattr(self, '_repo'):
+            gh_client = self._get_client()
+            self._repo = gh_client.get_user(self._github_owner).get_repo(self._github_repo)
+        return self._repo
 
     def _get_client(self):
         if not hasattr(self, '_client'):

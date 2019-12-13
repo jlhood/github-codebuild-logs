@@ -34,4 +34,7 @@ def handler(build_event, context):
              build.project_name, build.get_pr_id(), build.get_logs_url())
     build.copy_logs()
 
+    if config.DELETE_PREVIOUS_COMMENTS:
+        GITHUB.delete_previous_comments(build)
+
     GITHUB.publish_pr_comment(build)
