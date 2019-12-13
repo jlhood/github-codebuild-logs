@@ -3,7 +3,7 @@
 import re
 
 import boto3
-from github import Github
+from github import Github, GithubException
 
 import config
 import lambdalogging
@@ -63,12 +63,12 @@ class GithubProxy:
         """Delete previous PR comments."""
         repo = self._get_repo()
         for comment in repo.get_issue(build.get_pr_id).get_comments():
-            if HIDDEN_COMMENT in comment.body: # Check for hidden comment in body
-                try: # Not critical, catch all exceptions here
+            if HIDDEN_COMMENT in comment.body:  # Check for hidden comment in body
+                try:  # Not critical, catch all GitHub exceptions here
                     LOG.debug('Deleting previous comment: repo=%s/%s, pr_id=%s, comment_id=%s',
                             self._github_owner, self._github_repo, build.get_pr_id(), comment.id)
                     comment.delete()
-                except:
+                except GithubException:
                     pass
 
     def _get_repo(self):
