@@ -66,7 +66,7 @@ class GithubProxy:
             if HIDDEN_COMMENT in comment.body:  # Check for hidden comment in body
                 try:  # Not critical, catch all GitHub exceptions here
                     LOG.debug('Deleting previous comment: repo=%s/%s, pr_id=%s, comment_id=%s',
-                            self._github_owner, self._github_repo, build.get_pr_id(), comment.id)
+                              self._github_owner, self._github_repo, build.get_pr_id(), comment.id)
                     comment.delete()
                 except GithubException:
                     pass
