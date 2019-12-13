@@ -52,7 +52,7 @@ class GithubProxy:
         gh_client = self._get_client()
         repo = gh_client.get_user(self._github_owner).get_repo(self._github_repo)
 
-        if config.DELETE_PREVIOUS_COMMENT == 'true':
+        if config.DELETE_PREVIOUS_COMMENT:
             comments = repo.get_issue(build.get_pr_id).get_comments()
             for comment in comments:
                 if H3 in comment.body:
