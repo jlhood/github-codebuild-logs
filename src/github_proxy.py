@@ -62,7 +62,7 @@ class GithubProxy:
     def delete_previous_comments(self, build):
         """Delete previous PR comments."""
         repo = self._get_repo()
-        for comment in repo.get_issue(build.get_pr_id).get_comments():
+        for comment in repo.get_issue(build.get_pr_id()).get_comments():
             if HIDDEN_COMMENT in comment.body:  # Check for hidden comment in body
                 try:  # Not critical, catch all GitHub exceptions here
                     LOG.debug('Deleting previous comment: repo=%s/%s, pr_id=%s, comment_id=%s',
