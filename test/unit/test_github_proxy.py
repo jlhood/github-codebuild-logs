@@ -60,6 +60,10 @@ def mock_github(mocker):
     mocker.patch.object(github_proxy, 'Github')
     return github_proxy.Github.return_value
 
+@pytest.fixture
+def mock_log(mocker):
+    mocker.patch.object(github_proxy, 'LOG')
+    return github_proxy.LOG
 
 def test_publish_pr_comment(mocker, mock_config, mock_codebuild, mock_secretsmanager, mock_github):
     build = MagicMock(status=BUILD_STATUS)
@@ -90,6 +94,28 @@ def test_publish_pr_comment(mocker, mock_config, mock_codebuild, mock_secretsman
     )
     mock_pr.create_issue_comment.assert_called_once_with(expected_comment)
 
+def test_delete_previous_comments(mocker, mock_config, mock_codebuild, mock_secretsmanager, mock_github, mock_log):
+    build = MagicMock(status=BUILD_STATUS)
+    build.get_pr_id.return_value = PR_ID
+
+    mock_repo = mock_github.get_user.return_value.get_repo.return_value
+    mock_issue = mock_repo.get_issue.return_value
+
+    comment1 = MagicMock()
+    comment2 = MagicMock(body=github_proxy.HIDDEN_COMMENT)
+    comment2.delete.side_effect = github_proxy.GithubException('status', 'data')
+    comment3 = MagicMock(body='with ' + github_proxy.HIDDEN_COMMENT + ' comment')
+    mock_issue.get_comments.return_value = [comment1, comment2, comment3]
+
+    proxy = github_proxy.GithubProxy()
+    proxy.delete_previous_comments(build)
+
+    mock_repo.get_issue.assert_called_once_with(PR_ID)
+    mock_issue.get_comments.assert_called_once()
+    comment1.delete.assert_not_called()
+    comment2.delete.assert_called_once()
+    comment3.delete.assert_called_once()
+    mock_log.warning.assert_called_once()
 
 def test_init_github_info_auth_with_secrets_manager_arn(mocker, mock_config, mock_codebuild, mock_secretsmanager):
     secret_arn = 'arn:secret'
