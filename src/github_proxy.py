@@ -68,8 +68,9 @@ class GithubProxy:
                     LOG.debug('Deleting previous comment: repo=%s/%s, pr_id=%s, comment_id=%s',
                               self._github_owner, self._github_repo, build.get_pr_id(), comment.id)
                     comment.delete()
-                except GithubException:
-                    pass
+                except GithubException as e:
+                    LOG.warning('Failed to delete previous comment: repo=%s/%s, pr_id=%s, comment_id=%s, error=%s',
+                                self._github_owner, self._github_repo, build.get_pr_id(), comment.id, str(e))
 
     def _get_repo(self):
         if not hasattr(self, '_repo'):
