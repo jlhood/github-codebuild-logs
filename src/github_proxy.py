@@ -16,7 +16,7 @@ SAR_HOMEPAGE = 'https://aws.amazon.com/serverless/serverlessrepo/'
 
 HIDDEN_COMMENT = """
 <!--
-CREATED BY GITHUB-CODBUILD-LOGS
+CREATED BY GITHUB-CODEBUILD-LOGS
 -->
 """
 

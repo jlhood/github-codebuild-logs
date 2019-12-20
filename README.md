@@ -53,6 +53,7 @@ new serverless.CfnApplication(this, 'GitHubCodeBuildLogsSAR', {
 1. `GitHubOAuthToken` (optional) - OAuth token used for writing comments to GitHub PRs. If not provided, the app will attempt to pull an OAuth token from the CodeBuild project. Note, if your CodeBuild project does not have a GitHub OAuth token, e.g., it is being used to build a public GitHub repo, then this parameter will be required for the app to function properly.
     * **NOTE:** The access token used requires `public_repo` permissions for public repositories
         or `repo` for private repositories.
+1. `DeletePreviousComments` (optional) - Set to `true` to delete previously posted PR comments before posting a new one. Default: false
 1. `LogLevel` (optional) - Log level for Lambda function logging, e.g., ERROR, INFO, DEBUG, etc. Default: INFO
 
 ## App Outputs
