@@ -29,16 +29,6 @@ def test_handler(mocker, mock_build, mock_github):
     mock_github.delete_previous_comments.assert_not_called()
 
 
-def test_handler_different_project_name(mocker, mock_build, mock_github):
-    mock_build.project_name = 'different-project'
-
-    processbuildevents.handler(_mock_build_event(), None)
-
-    mock_build.copy_logs.assert_not_called()
-    mock_github.publish_pr_comment.assert_not_called()
-    mock_github.delete_previous_comments.assert_not_called()
-
-
 def test_handler_not_pr_build(mocker, mock_build, mock_github):
     mock_build.is_pr_build.return_value = False
 
@@ -47,6 +37,7 @@ def test_handler_not_pr_build(mocker, mock_build, mock_github):
     mock_build.copy_logs.assert_not_called()
     mock_github.publish_pr_comment.assert_not_called()
     mock_github.delete_previous_comments.assert_not_called()
+
 
 def test_handler_delete_previous_commments(mocker, mock_build, mock_github):
     processbuildevents.config.DELETE_PREVIOUS_COMMENTS = True

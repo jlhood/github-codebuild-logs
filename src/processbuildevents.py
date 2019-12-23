@@ -22,9 +22,6 @@ def handler(build_event, context):
     LOG.debug('Received event: %s', build_event)
 
     build = Build(build_event)
-    if build.project_name != config.PROJECT_NAME:
-        LOG.debug('Not our codebuild project')
-        return
 
     if not build.is_pr_build():
         LOG.debug('Not a PR build')
