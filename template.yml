@@ -114,6 +114,8 @@ Resources:
               'detail-type':
                 - CodeBuild Build State Change
               detail:
+                'project-name':
+                  - !Ref CodeBuildProjectName
                 'build-status':
                   - SUCCEEDED
                   - FAILED
