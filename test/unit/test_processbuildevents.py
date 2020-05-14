@@ -57,6 +57,7 @@ def test_handler_successful_pr_build_no_comment(mocker, mock_build, mock_github)
     mock_github.publish_pr_comment.assert_not_called()
 
 def test_handler_failure_pr_build_comment(mocker, mock_build, mock_github):
+    processbuildevents.config.COMMENT_ON_SUCCESS = False
     mock_build.status = 'FAILED'
 
     build_event = _mock_build_event()
