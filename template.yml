@@ -52,6 +52,13 @@ Parameters:
       - "false"
     Default: "false"
     Description: Set to "true" to delete previously posted PR comments before posting a new one.
+  CommentOnSuccess:
+    Type: String
+    AllowedValues:
+      - "true"
+      - "false"
+    Default: "true"
+    Description: Set to "false" to not publish a comment when build is successful.
 
 Conditions:
   UseDefaultProjectLogGroupName:
@@ -104,6 +111,7 @@ Resources:
             - !Ref GitHubOAuthTokenSecret
             - ''
           DELETE_PREVIOUS_COMMENTS: !Ref DeletePreviousComments
+          COMMENT_ON_SUCCESS: !Ref CommentOnSuccess
       Events:
         BuildStatus:
           Type: CloudWatchEvent

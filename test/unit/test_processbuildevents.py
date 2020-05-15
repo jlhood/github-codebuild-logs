@@ -10,6 +10,7 @@ def mock_build(mocker):
     mock_build = processbuildevents.Build.return_value
     mock_build.project_name = test_constants.PROJECT_NAME
     mock_build.is_pr_build.return_value = True
+    mock_build.status = 'SUCCEEDED'
     return mock_build
 
 
@@ -46,6 +47,23 @@ def test_handler_delete_previous_commments(mocker, mock_build, mock_github):
     processbuildevents.handler(build_event, None)
 
     mock_github.delete_previous_comments.assert_called_once_with(mock_build)
+
+def test_handler_successful_pr_build_no_comment(mocker, mock_build, mock_github):
+    processbuildevents.config.COMMENT_ON_SUCCESS = False
+
+    build_event = _mock_build_event()
+    processbuildevents.handler(build_event, None)
+
+    mock_github.publish_pr_comment.assert_not_called()
+
+def test_handler_failure_pr_build_comment(mocker, mock_build, mock_github):
+    processbuildevents.config.COMMENT_ON_SUCCESS = False
+    mock_build.status = 'FAILED'
+
+    build_event = _mock_build_event()
+    processbuildevents.handler(build_event, None)
+
+    mock_github.publish_pr_comment.assert_called_once_with(mock_build)
 
 
 def _mock_build_event():

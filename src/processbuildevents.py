@@ -34,4 +34,7 @@ def handler(build_event, context):
     if config.DELETE_PREVIOUS_COMMENTS:
         GITHUB.delete_previous_comments(build)
 
-    GITHUB.publish_pr_comment(build)
+    if build.status == 'SUCCEEDED' and not config.COMMENT_ON_SUCCESS:
+        LOG.debug('Not publishing comment because build SUCCEEDED but COMMENT_ON_SUCCESS is set to false.')
+    else:
+        GITHUB.publish_pr_comment(build)
