@@ -111,7 +111,7 @@ class GithubProxy:
                 ' parameter to specify a token to use when writing to GitHub.'.format(config.PROJECT_NAME))
 
         github_location = project_details['source']['location']
-        matches = re.search(r'github\.com\/(.+)\/(.+)\.git$', github_location)
+        matches = re.search(r'github\.com\/(.+)\/(.+)$', github_location)
         if not matches:
             raise RuntimeError(
                 'Could not parse GitHub owner/repo name from AWS CodeBuild project {}. location={}'.format(
