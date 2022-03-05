@@ -59,6 +59,12 @@ Parameters:
       - "false"
     Default: "true"
     Description: Set to "false" to not publish a comment when build is successful.
+  BuildEventTimeout:
+    Type: Number
+    MinValue: 1
+    MaxValue: 900
+    Default: 60
+    Description: Timeout for Process Build Event Lambda.
 
 Conditions:
   UseDefaultProjectLogGroupName:
@@ -74,7 +80,7 @@ Resources:
       Handler: processbuildevents.handler
       Runtime: python3.7
       Tracing: Active
-      Timeout: 60
+      Timeout: !Ref BuildEventTimeout
       Policies:
         - S3CrudPolicy:
             BucketName: !Ref BuildLogs
