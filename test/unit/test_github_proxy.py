@@ -103,7 +103,7 @@ def test_delete_previous_comments(mocker, mock_config, mock_codebuild, mock_secr
 
     comment1 = MagicMock()
     comment2 = MagicMock(body=github_proxy.HIDDEN_COMMENT)
-    comment2.delete.side_effect = github_proxy.GithubException('status', 'data')
+    comment2.delete.side_effect = github_proxy.GithubException('status', 'data', {})
     comment3 = MagicMock(body='with ' + github_proxy.HIDDEN_COMMENT + ' comment')
     mock_issue.get_comments.return_value = [comment1, comment2, comment3]
 
