@@ -131,6 +131,8 @@ Resources:
   GitHubOAuthTokenSecret:
     Condition: GitHubOAuthTokenProvided
     Type: AWS::SecretsManager::Secret
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Retain
     Properties:
       Name: !Sub /github-codebuild-logs/${AWS::StackName}/GitHubOAuthToken
       SecretString: !Ref GitHubOAuthToken
@@ -162,6 +164,8 @@ Resources:
 
   BuildLogsApi:
     Type: AWS::Serverless::Api
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
     Properties:
       StageName: Prod
       MethodSettings:
