@@ -56,6 +56,7 @@ new serverless.CfnApplication(this, 'GitHubCodeBuildLogsSAR', {
 1. `DeletePreviousComments` (optional) - Set to `true` to delete previously posted PR comments before posting a new one. Default: false
 1. `LogLevel` (optional) - Log level for Lambda function logging, e.g., ERROR, INFO, DEBUG, etc. Default: INFO
 1. `CommentOnSuccess` (optional) - Set to `false` to not publish a comment when build is successful. Default: true
+1. `BuildEventTimeout` (optional) - Timeout for Process Build Event Lambda. Default: 60
 
 ## App Outputs
 
