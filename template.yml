@@ -78,7 +78,7 @@ Resources:
     Properties:
       CodeUri: src/
       Handler: processbuildevents.handler
-      Runtime: python3.7
+      Runtime: python3.8
       Tracing: Active
       Timeout: !Ref BuildEventTimeout
       Policies:
@@ -148,7 +148,7 @@ Resources:
     Properties:
       CodeUri: src/
       Handler: getbuildlogs.handler
-      Runtime: python3.7
+      Runtime: python3.8
       Tracing: Active
       Timeout: 20
       Policies:
