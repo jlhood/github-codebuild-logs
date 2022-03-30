@@ -6,7 +6,7 @@ import test_constants
 
 GITHUB_OWNER = 'gh-user'
 GITHUB_REPO = 'gh-repo'
-GITHUB_LOCATION = 'https://github.com/{}/{}.git'.format(GITHUB_OWNER, GITHUB_REPO)
+GITHUB_LOCATION = 'https://github.com/{}/{}'.format(GITHUB_OWNER, GITHUB_REPO)
 CODEBUILD_GITHUB_TOKEN = 'shhh!!'
 SECRETS_MANAGER_GITHUB_TOKEN = "don't tell!!"
 BUILD_STATUS = 'SUCCEEDED'
