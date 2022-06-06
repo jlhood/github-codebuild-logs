@@ -12,6 +12,7 @@ sys.path.insert(0, my_path + '/../../src/')
 # set expected config environment variables to test constants
 os.environ['BUILD_LOGS_BUCKET_NAME'] = test_constants.BUCKET_NAME
 os.environ['CODEBUILD_PROJECT_NAME'] = test_constants.PROJECT_NAME
+os.environ['GITHUB_PROJECT_UNDER_ORG'] = test_constants.GITHUB_PROJECT_UNDER_ORG
 os.environ['EXPIRATION_IN_DAYS'] = str(test_constants.EXPIRATION_IN_DAYS)
 os.environ['BUILD_LOGS_API_ENDPOINT'] = test_constants.BUILD_LOGS_API_ENDPOINT
 os.environ['GITHUB_OAUTH_TOKEN_SECRET_ARN'] = test_constants.GITHUB_OAUTH_TOKEN_SECRET_ARN
