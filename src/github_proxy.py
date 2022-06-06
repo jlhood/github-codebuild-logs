@@ -75,7 +75,11 @@ class GithubProxy:
     def _get_repo(self):
         if not hasattr(self, '_repo'):
             gh_client = self._get_client()
-            self._repo = gh_client.get_user(self._github_owner).get_repo(self._github_repo)
+            LOG.debug("Owner:%s, repo:%s", self._github_owner, self._github_repo)
+            if config.PROJECT_UNDER_ORG:
+                self._repo = gh_client.get_organization(self._github_owner).get_repo(self._github_repo)
+            else:
+                self._repo = gh_client.get_user(self._github_owner).get_repo(self._github_repo)
         return self._repo
 
     def _get_client(self):
@@ -111,6 +115,7 @@ class GithubProxy:
                 ' parameter to specify a token to use when writing to GitHub.'.format(config.PROJECT_NAME))
 
         github_location = project_details['source']['location']
+        LOG.debug("Extracting repository from location:%s", github_location)
         matches = re.search(r'github\.com\/(.+)\/(.+)$', github_location)
         if not matches:
             raise RuntimeError(
@@ -118,4 +123,4 @@ class GithubProxy:
                     config.PROJECT_NAME, github_location))
 
         self._github_owner = matches.group(1)
-        self._github_repo = matches.group(2)
+        self._github_repo = matches.group(2).replace('/', '')
