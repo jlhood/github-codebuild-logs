@@ -52,6 +52,12 @@ def test_get_pr_id_is_pr(mocker, mock_codebuild):
     assert build_obj.get_pr_id() == 123
 
 
+def test_get_pr_id_is_pr_refs_pattern(mocker, mock_codebuild):
+    _mock_build_details('refs/pull/123/head^{2adff25fccedf7c08117b3fc93a7eca896c19060}')
+    build_obj = build.Build(_mock_build_event())
+    assert build_obj.get_pr_id() == 123
+
+
 def test_is_pr_build_not_pr(mocker, mock_codebuild):
     _mock_build_details('master')
     build_obj = build.Build(_mock_build_event())
