@@ -27,9 +27,14 @@ class Build:
 
     def get_pr_id(self):
         """If this build was for a PR branch, returns the PR ID, otherwise returns None."""
-        matches = re.match(r'^pr\/(\d+)', self._get_build_details().get('sourceVersion', ""))
+        source_version = self._get_build_details().get('sourceVersion', "")
+        matches = re.match(r'^pr\/(\d+)', source_version)
         if not matches:
-            return None
+            # check for refs pattern
+            pattern = r'refs/pull/(\d+)/head'
+            matches = re.search(pattern, source_version)
+            if not matches:
+                return None
         return int(matches.group(1))
 
     @property
