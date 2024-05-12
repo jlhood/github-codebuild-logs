@@ -1,4 +1,5 @@
 [[source]]
+
 url = "https://pypi.python.org/simple"
 verify_ssl = true
 name = "pypi"
@@ -7,7 +8,6 @@ name = "pypi"
 boto3 = "*"
 PyGithub = "*"
 aws-xray-sdk = "*"
-markupsafe = "*"
 
 [dev-packages]
 flake8 = "*"
