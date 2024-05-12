@@ -10,6 +10,7 @@ SAM_DIR := .aws-sam
 
 # S3 bucket used for packaging SAM templates
 PACKAGE_BUCKET ?= your-bucket-here
+PROFILE ?= default
 
 # user can optionally override the following by setting environment variables with the same names before running make
 
@@ -42,13 +43,13 @@ compile:
 	pipenv run pydocstyle $(SRC_DIR)
 	pipenv run cfn-lint template.yml
 	pipenv run py.test --cov=$(SRC_DIR) --cov-fail-under=85 -l -vv test/unit
-	pipenv lock --requirements > $(SRC_DIR)/requirements.txt
+	pipenv run python bin/requirements.py > $(SRC_DIR)/requirements.txt
 	sam build
 
 build: compile
 
 package: compile
-	sam package --s3-bucket $(PACKAGE_BUCKET) --output-template-file $(SAM_DIR)/packaged-template.yml
+	sam package --profile $(PROFILE) --s3-bucket $(PACKAGE_BUCKET) --output-template-file $(SAM_DIR)/packaged-template.yml
 
 publish: package
-	sam publish --template $(SAM_DIR)/packaged-template.yml
+	sam publish --profile $(PROFILE) --template $(SAM_DIR)/packaged-template.yml
