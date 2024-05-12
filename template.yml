@@ -19,9 +19,9 @@ Metadata:
     Labels: [github, pr, ci, codebuild, logs]
     HomePageUrl: https://github.com/jlhood/github-codebuild-logs
     # Update the semantic version and run sam publish to publish a new version of your app
-    SemanticVersion: 1.5.0
+    SemanticVersion: 1.6.0
     # best practice is to use git tags for each release and link to the version tag as your source code URL
-    SourceCodeUrl: https://github.com/jlhood/github-codebuild-logs/tree/1.5.0
+    SourceCodeUrl: https://github.com/jlhood/github-codebuild-logs/tree/1.6.0
 
 Parameters:
   CodeBuildProjectName:
