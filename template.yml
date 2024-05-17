@@ -52,6 +52,13 @@ Parameters:
       - "false"
     Default: "false"
     Description: Set to "true" to delete previously posted PR comments before posting a new one.
+  GithubProjectUnderOrg:
+    Type: String
+    AllowedValues:
+      - "true"
+      - "false"
+    Default: "false"
+    Description: "Set to true if the project is owned by organization"
   CommentOnSuccess:
     Type: String
     AllowedValues:
@@ -110,6 +117,7 @@ Resources:
           LOG_LEVEL: !Ref LogLevel
           BUILD_LOGS_BUCKET_NAME: !Ref BuildLogs
           CODEBUILD_PROJECT_NAME: !Ref CodeBuildProjectName
+          GITHUB_PROJECT_UNDER_ORG: !Ref GithubProjectUnderOrg
           EXPIRATION_IN_DAYS: !Ref ExpirationInDays
           BUILD_LOGS_API_ENDPOINT: !Sub "https://${BuildLogsApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/buildlogs"
           GITHUB_OAUTH_TOKEN_SECRET_ARN: !If
